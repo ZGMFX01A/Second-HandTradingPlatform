@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang='cn' xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>商品销售情况</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/css/bootstrap-responsive.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/css/style-metro.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/css/style-responsive.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/css/default.css}" rel="stylesheet" type="text/css" id="style_color" />
+    <link th:href="@{/css/uniform.default.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/css/pagination.css}" rel="stylesheet" type="text/css" />
+    <link rel="shortcut icon" th:href="@{/image/favicon.ico}" />
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <h3 class="page-title"><i class="fa fa-bar-chart"></i>销售情况</h3>
+        <ul class="breadcrumb">
+            <li>
+                <a href="#"><i class="fa fa-home"></i>销售情况</a>
+                <i class="fa fa-angle-right"></i>
+            </li>
+            <li>
+                <a href="#">销售图表</a>
+            </li>
+        </ul>
+    </div>
+    <div class="row-fluid">
+        <div class="portlet box blue">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-reorder"></i>
+                    销售图表
+                </div>
+            </div>
+            <div class="portlet-body">
+                <table id="userTable" class="table table-bordered table-striped">
+                    <input type="button" value="显示图表" onclick="getCharts('type1')">
+                    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+                    <div id="main" style="width: 600px;height:400px;"></div>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <div id="Pagination" class="pagination align_right"><!-- 这里显示分页 --></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:src="@{/js/echarts4.8.0.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+
+    // 指定图表的配置项和数据
+    var option = {
+        grid:{
+            left:100,
+            bottom:150
+        },
+        title: {
+            text: '平台商品销售情况'
+        },
+        tooltip: {},
+        legend: {
+            data:['销量']
+        },
+        xAxis: {
+            data: [],
+            // axisLabel:{
+            //     interval: 0,
+            //     formatter: function (value) {
+            //         //x轴的文字改为竖版显示
+            //         var str = value.split("");
+            //         return str.join("\n");
+            //     }
+            // }
+            axisLabel:{
+                interval:0,
+                rotate:45,//倾斜度 -90 至 90 默认为0
+                margin:2,
+                textStyle:{
+                    fontWeight:"bolder",
+                    color:"#000000"
+                }
+            }
+        },
+        yAxis: {},
+        series: [{
+            name: '',
+            type: 'bar',
+            data: []
+        }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    function getCharts(type){
+
+        $.ajax({
+            url:"getChart.do",
+            data:{"type":type},
+            type:"post",
+            dataType:"json",
+            success: function(data){
+                myChart.setOption({
+                    xAxis: {
+                        data: data.xAxis
+                    },
+                    series: [{
+                        name: data.legend,
+                        data: data.series
+                    }]
+                });
+            },
+            error:function(errorMsg){
+                alert("图表数据请求失败");
+            }
+        });
+    }
+</script>
+</body>
+</html>
